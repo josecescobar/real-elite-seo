@@ -68,6 +68,23 @@ export type ActionItem = {
   verifyStep: string | null;
 };
 
+export type GoogleWidget = {
+  state: "disconnected" | "no_data" | "ok" | "error";
+  detail: string | null;
+  refreshedAt: string | null;
+  summary: string | null;
+};
+
+/** Paperclip statuses that are no longer open work. */
+const TERMINAL_ACTION_STATUSES = new Set(["done", "cancelled"]);
+
+export function countOpenActionItems(
+  items: readonly { status: string }[],
+): number {
+  return items.filter((item) => !TERMINAL_ACTION_STATUSES.has(item.status))
+    .length;
+}
+
 const PLANNED_PAID = [
   {
     title: "Keyword research",

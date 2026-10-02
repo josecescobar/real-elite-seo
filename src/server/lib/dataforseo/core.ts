@@ -1,3 +1,4 @@
+import { assertRealEliteV1PaidAllowed } from "@/server/features/real-elite/paid-gate";
 import { AppError } from "@/server/lib/errors";
 import { getRequiredEnvValue } from "@/server/lib/runtime-env";
 import type { ErrorCode } from "@/shared/error-codes";
@@ -66,6 +67,7 @@ function createAuthenticatedFetch(
   maxServerErrorRetries = DATAFORSEO_MAX_RETRIES,
 ) {
   return async (url: RequestInfo, init?: RequestInit): Promise<Response> => {
+    assertRealEliteV1PaidAllowed("dataforseo");
     const apiKey = await getRequiredEnvValue("DATAFORSEO_API_KEY");
     const headers = new Headers(init?.headers);
     headers.set("Authorization", `Basic ${apiKey}`);

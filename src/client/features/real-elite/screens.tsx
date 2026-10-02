@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { BaselineFile } from "@/server/features/real-elite/parse";
+import type {
+  BaselineFile,
+  GoogleWidget,
+} from "@/server/features/real-elite/parse";
 import { DataWidget } from "./DataWidget";
 
 type Snapshot = {
@@ -9,17 +12,18 @@ type Snapshot = {
   google: {
     oauth: "configured" | "missing";
     missingEnv: string[];
-    searchConsole: { state: "no_data"; detail: string };
-    ga4: { state: "no_data"; detail: string };
+    searchConsole: GoogleWidget;
+    ga4: GoogleWidget;
   };
   baselineFile: string | null;
   baselineDir: string;
   baseline: BaselineFile;
   actions: {
-    state: "ok" | "no_data";
+    state: "ok" | "unavailable" | "error";
     source: string;
     refreshedAt: string | null;
     detail?: string;
+    openCount: number;
     items: Array<{
       identifier: string;
       title: string;
@@ -124,18 +128,26 @@ export function RealEliteOverview() {
         <DataWidget
           title="Live Search Console"
           source="Google Search Console API (free OAuth)"
-          refreshedAt={null}
-          empty
+          refreshedAt={data.google.searchConsole.refreshedAt}
+          empty={data.google.searchConsole.state !== "ok"}
+          note={
+            data.google.searchConsole.state === "ok"
+              ? null
+              : data.google.searchConsole.detail
+          }
         >
-          {null}
+          {data.google.searchConsole.summary ? (
+            <p>{data.google.searchConsole.summary}</p>
+          ) : null}
         </DataWidget>
         <DataWidget
           title="Live GA4"
           source="Google Analytics Data API (free OAuth)"
-          refreshedAt={null}
-          empty
+          refreshedAt={data.google.ga4.refreshedAt}
+          empty={data.google.ga4.state !== "ok"}
+          note={data.google.ga4.state === "ok" ? null : data.google.ga4.detail}
         >
-          {null}
+          {data.google.ga4.summary ? <p>{data.google.ga4.summary}</p> : null}
         </DataWidget>
         <DataWidget
           title="Own crawl"
@@ -155,7 +167,9 @@ export function RealEliteOverview() {
           refreshedAt={data.actions.refreshedAt}
           empty={data.actions.state !== "ok"}
         >
-          <p>{data.actions.items.length} open issues on the Real Elite SEO project</p>
+          <p>
+            {data.actions.openCount} open issues on the Real Elite SEO project
+          </p>
         </DataWidget>
       </div>
       <section className="rounded-lg border border-border bg-card p-4">
@@ -195,21 +209,33 @@ export function GoogleSearchScreen() {
   return (
     <Screen
       title="Google Search Performance"
-      description="Live Google data stays empty until Jose connects OAuth. The frozen baseline is a separate, dated export."
+      description="Search Console and GA4 follow the connection stored for this local project. An OAuth client in the environment does not fill these widgets, and this screen does not start a sign-in. The frozen baseline is a separate, dated export."
     >
       <div className="grid gap-5 lg:grid-cols-2">
         <DataWidget
           title="Live Search Console"
           source="Google Search Console API (free OAuth)"
-          refreshedAt={null}
-          empty
-        />
+          refreshedAt={data.google.searchConsole.refreshedAt}
+          empty={data.google.searchConsole.state !== "ok"}
+          note={
+            data.google.searchConsole.state === "ok"
+              ? null
+              : data.google.searchConsole.detail
+          }
+        >
+          {data.google.searchConsole.summary ? (
+            <p>{data.google.searchConsole.summary}</p>
+          ) : null}
+        </DataWidget>
         <DataWidget
           title="Live GA4"
           source="Google Analytics Data API (free OAuth)"
-          refreshedAt={null}
-          empty
-        />
+          refreshedAt={data.google.ga4.refreshedAt}
+          empty={data.google.ga4.state !== "ok"}
+          note={data.google.ga4.state === "ok" ? null : data.google.ga4.detail}
+        >
+          {data.google.ga4.summary ? <p>{data.google.ga4.summary}</p> : null}
+        </DataWidget>
         <DataWidget
           title="OAuth client"
           source="Local environment (values are not shown)"
@@ -409,7 +435,7 @@ export function ActionItemsScreen() {
         source={actions?.source ?? "http://127.0.0.1:3100/api"}
         refreshedAt={actions?.refreshedAt ?? null}
         empty={!snapshot.isPending && actions?.state !== "ok"}
-        note={actions?.state === "no_data" ? (actions.detail ?? null) : null}
+        note={actions?.state === "ok" ? null : (actions?.detail ?? null)}
       >
         {snapshot.isPending ? (
           <p>Loading issues…</p>

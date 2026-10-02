@@ -46,21 +46,23 @@ services:
       - CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=postgres://openseo:openseo@postgres:5432/openseo
       - OPENSEO_TELEMETRY_DISABLED=1
       - DO_NOT_TRACK=1
-      - DATAFORSEO_API_KEY=${DATAFORSEO_API_KEY:-}
+      # Real Elite v1 forces paid keys empty so a dummy value in .env cannot
+      # reach the process. The server gate is the enforcement; this override
+      # stops Compose from forwarding the keys. Restore the ${VAR:-} form only
+      # when Jose approves DataForSEO or OpenRouter spend.
+      - DATAFORSEO_API_KEY=
+      - OPENROUTER_API_KEY=
+      - OPENROUTER_MODEL=
       - REAL_ELITE_COMMAND_API=http://host.docker.internal:3100
+      - REAL_ELITE_COMMAND_TOKEN=${REAL_ELITE_COMMAND_TOKEN:-}
+      - REAL_ELITE_OPENSEO_PROJECT_ID=${REAL_ELITE_OPENSEO_PROJECT_ID:-}
       - REAL_ELITE_BASELINE_DIR=/seo-data
       - REAL_ELITE_SITE_URL=https://www.realelitecontracting.com
-      # Optional: AI features (the SAM agent). Without this the setup
-      # gate in the app asks for the key, but nothing here would forward it.
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       # Optional: Google Search Console. See
       # docs/SELF_HOSTING_GOOGLE_SEARCH_CONSOLE.md
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-}
-      # Optional: AI features (SAM, the in-app SEO agent)
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
-      - OPENROUTER_MODEL=${OPENROUTER_MODEL:-}
       - VITE_SHOW_DEVTOOLS=false
     ports:
       - "127.0.0.1:${PORT:-3001}:${PORT:-3001}"

@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@/server/features/real-elite/paid-gate", () => ({
+  assertRealEliteV1PaidAllowed: () => {},
+}));
+
 vi.mock("@/server/lib/runtime-env", () => ({
   getRequiredEnvValue: vi.fn(async () => "encoded-credentials"),
 }));

@@ -1,6 +1,10 @@
 import { afterEach, expect, it, vi } from "vitest";
 import { fetchRelatedKeywords } from "./labs";
 
+vi.mock("@/server/features/real-elite/paid-gate", () => ({
+  assertRealEliteV1PaidAllowed: () => {},
+}));
+
 vi.mock("@/server/lib/runtime-env", () => ({
   getRequiredEnvValue: vi.fn(async () => "test-api-key"),
 }));

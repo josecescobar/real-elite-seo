@@ -2,6 +2,7 @@ import {
   createOpenRouter,
   type LanguageModelV3,
 } from "@openrouter/ai-sdk-provider";
+import { assertRealEliteV1PaidAllowed } from "@/server/features/real-elite/paid-gate";
 
 // OpenRouter model slug used for the SAM in-app chat agent. Override with
 // OPENROUTER_MODEL to swap models without a code change.
@@ -31,6 +32,7 @@ export function buildChatAgentModel(
   modelId?: string,
   reasoningEffort: "max" | "low" = "max",
 ): LanguageModelV3 {
+  assertRealEliteV1PaidAllowed("openrouter");
   const model = modelId ?? DEFAULT_CHAT_AGENT_MODEL;
   const openrouter = createOpenRouter({ apiKey });
 

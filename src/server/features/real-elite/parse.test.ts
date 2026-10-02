@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import bundled from "./bundled-baseline.json";
 import {
+  countOpenActionItems,
   extractVerifyStep,
   googleOauthStatus,
   mapActionItems,
@@ -74,6 +75,19 @@ describe("action items", () => {
         verifyStep: null,
       },
     ]);
+  });
+});
+
+describe("open issue count", () => {
+  it("excludes done and cancelled and keeps the other statuses", () => {
+    expect(
+      countOpenActionItems([
+        { status: "done" },
+        { status: "todo" },
+        { status: "cancelled" },
+        { status: "in_progress" },
+      ]),
+    ).toBe(2);
   });
 });
 

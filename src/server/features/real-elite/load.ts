@@ -3,7 +3,9 @@ import { join } from "node:path";
 import http from "node:http";
 import https from "node:https";
 import bundled from "./bundled-baseline.json";
+import { loadGoogleDashboard } from "./google-dashboard";
 import {
+  countOpenActionItems,
   googleOauthStatus,
   mapActionItems,
   parseBaseline,
@@ -27,6 +29,9 @@ export type RealEliteEnv = {
   REAL_ELITE_PROJECT_ID?: string;
   REAL_ELITE_BASELINE_DIR?: string;
   REAL_ELITE_SITE_URL?: string;
+  /** Server-only. Never copy this into a snapshot, log, or browser response. */
+  REAL_ELITE_COMMAND_TOKEN?: string;
+  REAL_ELITE_OPENSEO_PROJECT_ID?: string;
 };
 
 function read(env: RealEliteEnv, name: keyof RealEliteEnv, fallback: string) {
@@ -34,26 +39,42 @@ function read(env: RealEliteEnv, name: keyof RealEliteEnv, fallback: string) {
   return typeof value === "string" && value.trim() !== "" ? value.trim() : fallback;
 }
 
-function getText(url: string, timeoutMs = 8000): Promise<string> {
+function readCommandToken(env: RealEliteEnv): string | null {
+  const token = env.REAL_ELITE_COMMAND_TOKEN?.trim();
+  if (!token || /[\r\n]/.test(token)) return null;
+  return token;
+}
+
+function getText(
+  url: string,
+  timeoutMs = 8000,
+  headers?: Record<string, string>,
+): Promise<string> {
   return new Promise((resolve, reject) => {
-    const lib = url.startsWith("https:") ? https : http;
-    const req = lib.get(url, { timeout: timeoutMs }, (res) => {
-      const chunks: Buffer[] = [];
-      res.on("data", (chunk: Buffer) => chunks.push(chunk));
-      res.on("end", () => {
-        const body = Buffer.concat(chunks).toString("utf8");
-        if ((res.statusCode ?? 500) >= 400) {
-          reject(new Error(`HTTP ${res.statusCode}`));
-          return;
-        }
-        resolve(body);
-      });
-    });
+    const target = new URL(url);
+    const lib = target.protocol === "https:" ? https : http;
+    const req = lib.request(
+      target,
+      { method: "GET", timeout: timeoutMs, headers },
+      (res) => {
+        const chunks: Buffer[] = [];
+        res.on("data", (chunk: Buffer) => chunks.push(chunk));
+        res.on("end", () => {
+          const body = Buffer.concat(chunks).toString("utf8");
+          if ((res.statusCode ?? 500) >= 400) {
+            reject(new Error(`HTTP ${res.statusCode}`));
+            return;
+          }
+          resolve(body);
+        });
+      },
+    );
     req.on("error", reject);
     req.on("timeout", () => {
       req.destroy();
       reject(new Error("timeout"));
     });
+    req.end();
   });
 }
 
@@ -94,10 +115,26 @@ async function loadActionItems(env: RealEliteEnv) {
   const companyId = read(env, "REAL_ELITE_COMPANY_ID", DEFAULT_COMPANY_ID);
   const projectId = read(env, "REAL_ELITE_PROJECT_ID", DEFAULT_PROJECT_ID);
   const source = `${api}/api/companies/${companyId}/issues?projectId=${projectId}`;
+  const token = readCommandToken(env);
+  if (!token) {
+    return {
+      state: "unavailable" as const,
+      source,
+      refreshedAt: null,
+      detail:
+        "Paperclip read token is not configured. Set REAL_ELITE_COMMAND_TOKEN on the server. This prototype does not provision credentials or sign in.",
+      items: [],
+      openCount: 0,
+    };
+  }
+  const headers = {
+    Accept: "application/json",
+    Authorization: `Bearer ${token}`,
+  };
   try {
     const [issueText, agentText] = await Promise.all([
-      getText(`${source}`),
-      getText(`${api}/api/companies/${companyId}/agents`),
+      getText(source, 8000, headers),
+      getText(`${api}/api/companies/${companyId}/agents`, 8000, headers),
     ]);
     const issues = JSON.parse(issueText) as unknown;
     const agents = JSON.parse(agentText) as unknown;
@@ -117,19 +154,22 @@ async function loadActionItems(env: RealEliteEnv) {
         }
       }
     }
+    const items = mapActionItems(issues, names);
     return {
       state: "ok" as const,
       source,
       refreshedAt: new Date().toISOString(),
-      items: mapActionItems(issues, names),
+      items,
+      openCount: countOpenActionItems(items),
     };
   } catch (error) {
     return {
-      state: "no_data" as const,
+      state: "error" as const,
       source,
       refreshedAt: null,
       detail: error instanceof Error ? error.message : "Command API unreachable",
       items: [],
+      openCount: 0,
     };
   }
 }
@@ -138,26 +178,15 @@ export async function loadRealEliteSnapshot(env: RealEliteEnv) {
   const baselineDir = read(env, "REAL_ELITE_BASELINE_DIR", DEFAULT_BASELINE_DIR);
   const baselineRead = readBaselineFromDir(baselineDir);
   const google = googleOauthStatus(env);
+  const googleDashboard = await loadGoogleDashboard(env);
   const actions = await loadActionItems(env);
   return {
     generatedAt: new Date().toISOString(),
     site: read(env, "REAL_ELITE_SITE_URL", DEFAULT_SITE),
     google: {
       ...google,
-      searchConsole: {
-        state: "no_data" as const,
-        detail:
-          google.oauth === "missing"
-            ? `OAuth client is not configured. Add ${google.missingEnv.join(", ")} to the local .env. Do not commit them.`
-            : "OAuth client is configured. Search Console is not connected in this local database yet, so there is no live query data.",
-      },
-      ga4: {
-        state: "no_data" as const,
-        detail:
-          google.oauth === "missing"
-            ? "GA4 uses the same free Google OAuth client. It is not configured."
-            : "OAuth client is configured. GA4 is not connected in this local database yet.",
-      },
+      searchConsole: googleDashboard.searchConsole,
+      ga4: googleDashboard.ga4,
     },
     baselineFile: baselineRead.file,
     baselineDir,

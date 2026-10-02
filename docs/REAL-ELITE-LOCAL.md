@@ -2,7 +2,7 @@
 
 Fork of every-app/open-seo. License and copyright stay in `LICENSE`. This copy runs on the Mac only. Do not run `alchemy deploy`, `wrangler deploy`, or merge this branch to `main`.
 
-Ongoing cost of this prototype: **$0**. Search Console, GA4, PageSpeed, and Chrome UX Report are free. DataForSEO and OpenRouter are disabled and labeled Planned (paid).
+Ongoing cost of this prototype: **$0**. Search Console, GA4, PageSpeed, and Chrome UX Report are free. DataForSEO and OpenRouter are disabled in the server before any provider fetch, including MCP, SAM, and scheduled rank checks, even if a key is present. Compose forces those keys empty. They stay labeled Planned (paid).
 
 ## What Jose fills in
 
@@ -62,4 +62,6 @@ Overview, Google Search Performance, Website Health, Local SEO, Action Items.
 
 Widgets show the data source and last refreshed time. Missing live data says No data. Crawl and the 2026-10-01 Maps snapshot are read from `REAL_ELITE_BASELINE_DIR` (default `/Volumes/Silver T7/AI-SHARED/seo`, newest `baseline*.json`). A copy of that export is bundled so the screens still render if the directory is not mounted.
 
-Action Items reads Real Elite Command at `http://127.0.0.1:3100/api` for the Real Elite SEO project. Read-only.
+Action Items reads Real Elite Command at `http://127.0.0.1:3100/api` for the Real Elite SEO project. Reads are GET only and send `Authorization: Bearer` from server-only `REAL_ELITE_COMMAND_TOKEN`. If that token is unset, the widget says unavailable and does not call the API. A 401 is an error state. The token is never returned to the browser. This app does not provision the token.
+
+Search Console and GA4 widgets follow the connection stored for `REAL_ELITE_OPENSEO_PROJECT_ID`. Configuring the OAuth client does not fill them, and the screens do not start a sign-in. Open issue counts exclude `done` and `cancelled`. The action-items table still lists every status.
