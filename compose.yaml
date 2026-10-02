@@ -1,6 +1,31 @@
 services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: openseo
+      POSTGRES_PASSWORD: openseo
+      POSTGRES_DB: openseo
+    ports:
+      - "127.0.0.1:5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openseo -d openseo"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    volumes:
+      - open_seo_pg:/var/lib/postgresql/data
+
   open-seo:
-    image: ${OPEN_SEO_IMAGE:-ghcr.io/every-app/open-seo:latest}
+    image: ${OPEN_SEO_IMAGE:-open-seo:local}
+    build:
+      context: .
+      dockerfile: deploy/docker/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
     # Forward EVERY .env value into the container. The explicit `environment:`
     # list below still wins for the values it names — without this, any .env
@@ -16,9 +41,15 @@ services:
       - PORT=${PORT:-3001}
       - ALLOWED_HOST=${ALLOWED_HOST:-}
       - AUTH_MODE=local_noauth
-      - OPENSEO_TELEMETRY_DISABLED=${OPENSEO_TELEMETRY_DISABLED:-}
-      - DO_NOT_TRACK=${DO_NOT_TRACK:-}
-      - DATAFORSEO_API_KEY=${DATAFORSEO_API_KEY}
+      - DATABASE_PROVIDER=postgres
+      - POSTGRES_DATABASE_URL=postgres://openseo:openseo@postgres:5432/openseo
+      - CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=postgres://openseo:openseo@postgres:5432/openseo
+      - OPENSEO_TELEMETRY_DISABLED=1
+      - DO_NOT_TRACK=1
+      - DATAFORSEO_API_KEY=${DATAFORSEO_API_KEY:-}
+      - REAL_ELITE_COMMAND_API=http://host.docker.internal:3100
+      - REAL_ELITE_BASELINE_DIR=/seo-data
+      - REAL_ELITE_SITE_URL=https://www.realelitecontracting.com
       # Optional: AI features (the SAM agent). Without this the setup
       # gate in the app asks for the key, but nothing here would forward it.
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
@@ -35,5 +66,7 @@ services:
       - "127.0.0.1:${PORT:-3001}:${PORT:-3001}"
     volumes:
       - open_seo_data:/app/.wrangler
+      - "/Volumes/Silver T7/AI-SHARED/seo:/seo-data:ro"
 volumes:
   open_seo_data:
+  open_seo_pg:

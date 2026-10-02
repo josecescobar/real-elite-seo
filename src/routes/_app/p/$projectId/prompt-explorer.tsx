@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { PlannedPaid } from "@/client/features/real-elite/DataWidget";
 import { PromptExplorerPage } from "@/client/features/ai-search/PromptExplorerPage";
 import {
   PROMPT_EXPLORER_MODELS,
@@ -7,7 +8,14 @@ import {
 
 export const Route = createFileRoute("/_app/p/$projectId/prompt-explorer")({
   validateSearch: promptExplorerSearchSchema,
-  component: PromptExplorerRoute,
+  component: function DisabledPromptExplorer() {
+    return (
+      <PlannedPaid
+        title="Prompt Explorer"
+        detail="DataForSEO AI visibility. Disabled in the local Real Elite prototype."
+      />
+    );
+  },
 });
 
 function PromptExplorerRoute() {

@@ -130,16 +130,16 @@
   // docs/LOCAL_POSTGRES.md, and nothing connects to it unless
   // DATABASE_PROVIDER=postgres is set in .env.local.
   //
-  // Kept commented out: the id lives in OpenSEO's account, and only local
-  // Postgres dev reads this block (Alchemy deploys and the Docker image never
-  // do). Uncomment when running local Postgres dev per docs/LOCAL_POSTGRES.md.
-  // "hyperdrive": [
-  //   {
-  //     "binding": "HYPERDRIVE",
-  //     "id": "9d64ccfb559f44449ce52a143912f898",
-  //     "localConnectionString": "postgres://openseo:openseo@localhost:5433/openseo",
-  //   },
-  // ],
+  // Local Real Elite prototype uses this binding. Alchemy deploys are out of
+  // scope for this fork. The id is only used by miniflare to name local state;
+  // host dev uses localhost:5433 and Docker overrides the connection string.
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "9d64ccfb559f44449ce52a143912f898",
+      "localConnectionString": "postgres://openseo:openseo@127.0.0.1:5433/openseo",
+    },
+  ],
   "r2_buckets": [
     {
       "bucket_name": "open-seo",

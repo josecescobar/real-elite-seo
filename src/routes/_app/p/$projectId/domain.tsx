@@ -3,6 +3,7 @@ import {
   stripSearchParams,
   useNavigate,
 } from "@tanstack/react-router";
+import { PlannedPaid } from "@/client/features/real-elite/DataWidget";
 import { DomainOverviewPage } from "@/client/features/domain/DomainOverviewPage";
 import {
   DEFAULT_DOMAIN_KEYWORDS_PAGE_SIZE,
@@ -43,7 +44,14 @@ export const Route = createFileRoute("/_app/p/$projectId/domain")({
   search: {
     middlewares: [stripSearchParams(DEFAULT_DOMAIN_SEARCH)],
   },
-  component: DomainOverviewRoute,
+  component: function DisabledDomainOverview() {
+    return (
+      <PlannedPaid
+        title="Domain Overview"
+        detail="DataForSEO domain and competitor data. Disabled in the local Real Elite prototype."
+      />
+    );
+  },
 });
 
 function DomainOverviewRoute() {

@@ -1,5 +1,7 @@
 # OpenSEO
 
+Real Elite local fork of [every-app/open-seo](https://github.com/every-app/open-seo) (MIT). Run it on this machine only. Do not deploy. See [docs/REAL-ELITE-LOCAL.md](docs/REAL-ELITE-LOCAL.md).
+
 > Open source alternative to Semrush and Ahrefs
 
 OpenSEO is an SEO tool for _the people_. If tools like Semrush or Ahrefs are too expensive or bloated, OpenSEO is a pay-as-you-go alternative that you actually control.

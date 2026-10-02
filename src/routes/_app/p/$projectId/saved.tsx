@@ -3,6 +3,7 @@ import {
   stripSearchParams,
   useNavigate,
 } from "@tanstack/react-router";
+import { PlannedPaid } from "@/client/features/real-elite/DataWidget";
 // Aliased: `SavedKeywordsPage` has a local `sort` const (the saved-keyword
 // sort key) that would otherwise shadow this import at the call site.
 import { sort as sortArray } from "remeda";
@@ -74,7 +75,14 @@ export const Route = createFileRoute("/_app/p/$projectId/saved")({
       }),
     ],
   },
-  component: SavedKeywordsPage,
+  component: function DisabledSavedKeywords() {
+    return (
+      <PlannedPaid
+        title="Saved Keywords"
+        detail="Saved keywords come from DataForSEO keyword research. Disabled in the local Real Elite prototype."
+      />
+    );
+  },
 });
 
 const FILTER_DEBOUNCE_MS = 350;

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
+import { PlannedPaid } from "@/client/features/real-elite/DataWidget";
 import { SamChat } from "@/client/features/sam/SamChat";
 
 const samSearchSchema = z.object({
@@ -9,7 +10,14 @@ const samSearchSchema = z.object({
 
 export const Route = createFileRoute("/_app/p/$projectId/sam")({
   validateSearch: samSearchSchema,
-  component: SamRoute,
+  component: function DisabledSam() {
+    return (
+      <PlannedPaid
+        title="SAM"
+        detail="OpenRouter is pay-per-use. Disabled in the local Real Elite prototype."
+      />
+    );
+  },
 });
 
 function SamRoute() {

@@ -1,0 +1,81 @@
+{
+  "crawl": {
+    "source": "/Volumes/Silver T7/AI-SHARED/seo/BASELINE-2026-10-02.md",
+    "refreshedAt": "2026-10-02T16:00:17.135094Z",
+    "site": "https://www.realelitecontracting.com",
+    "auditId": "REA-1269",
+    "status": "completed",
+    "pagesCrawled": 226,
+    "pagesLimit": 226,
+    "missingTitles": 0,
+    "missingDescriptions": 0,
+    "duplicateTitles": 0,
+    "duplicateDescriptions": 0,
+    "lighthouseRuns": 0,
+    "notInSitemap": [],
+    "serviceUrlsOutsideThisCrawl": []
+  },
+  "localGrids": {
+    "source": "/Volumes/Silver T7/AI-SHARED/Website/seo/LOCAL-SEO-WEEKLY-2026-10-01.md",
+    "refreshedAt": "2026-10-01",
+    "note": "Historical hosted OpenSEO Maps grids. This prototype does not buy new grids.",
+    "rows": [
+      {
+        "keyword": "kitchen remodel",
+        "grid": "3x3, 10 km",
+        "points": 9,
+        "ranked": 0,
+        "centerLeader": "Mountaineer Kitchens & Baths"
+      },
+      {
+        "keyword": "deck builder",
+        "grid": "5x5, 10 km",
+        "points": 25,
+        "ranked": 0,
+        "centerLeader": "Nature's Air Conditioned City Decks"
+      },
+      {
+        "keyword": "roofing contractor",
+        "grid": "3x3, 10 km",
+        "points": 9,
+        "ranked": 0,
+        "centerLeader": "Jade Roofing & Construction"
+      },
+      {
+        "keyword": "siding contractor",
+        "grid": "3x3, 10 km",
+        "points": 9,
+        "ranked": 0,
+        "centerLeader": "Orion Exteriors"
+      },
+      {
+        "keyword": "bathroom remodel",
+        "grid": "no payload saved",
+        "points": null,
+        "ranked": null,
+        "centerLeader": null
+      }
+    ]
+  },
+  "listingSnapshot": {
+    "source": "/Volumes/Silver T7/AI-SHARED/Website/seo/LOCAL-SEO-WEEKLY-2026-10-01.md",
+    "refreshedAt": "2026-10-01",
+    "name": "Real Elite Contracting LLC",
+    "category": "General contractor",
+    "phone": "+1 681-534-5515",
+    "claimed": true,
+    "reviewCount": 6,
+    "rating": 5,
+    "address": null,
+    "website": "http://www.realelitecontracting.com/"
+  },
+  "searchConsoleMobileFrozen": {
+    "source": "/Volumes/Silver T7/Projects/Real-Elite/real-elite-website/docs/phase-5-baseline-2026-09-18.md",
+    "refreshedAt": "2026-09-18",
+    "device": "mobile",
+    "windowStart": "2026-06-15",
+    "windowEnd": "2026-09-15",
+    "clicks": 5,
+    "impressions": 3667
+  }
+}
