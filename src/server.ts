@@ -27,6 +27,10 @@ import { sweepDubReferredOrganizations } from "@/server/referrals/dub";
 import { maybeSendSelfHostHeartbeat } from "@/server/lib/self-host-telemetry";
 import { handleGdprStorageErasure } from "@/server/gdpr/storage-erasure";
 import { GDPR_STORAGE_ERASURE_PATH } from "@/shared/gdpr-erasure";
+import {
+  realEliteV1BlockedPaidRoute,
+  runUnlessRealEliteV1PaidDisabled,
+} from "@/server/features/real-elite/paid-gate";
 
 const startHandler = createStartHandler(defaultStreamHandler);
 
@@ -149,6 +153,9 @@ function handleFetch(
     return handleGdprStorageErasure(publicRequest, env);
   }
 
+  const blockedPaidRoute = realEliteV1BlockedPaidRoute(pathname, MCP_ROUTE);
+  if (blockedPaidRoute) return blockedPaidRoute;
+
   if (pathname.startsWith("/agents/")) {
     return routeChatAgents(publicRequest, env);
   }
@@ -229,7 +236,9 @@ export default {
       console.error("[cron] Stale-audit reconcile failed:", err);
     }
     // Scope a per-request Postgres client for the cron run (no-op in D1 mode).
-    await withPgClient(() => runScheduledRankChecks(env));
+    await runUnlessRealEliteV1PaidDisabled(() =>
+      withPgClient(() => runScheduledRankChecks(env)),
+    );
     if (watchdogError) throw watchdogError;
   },
 };

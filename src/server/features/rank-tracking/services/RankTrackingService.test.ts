@@ -1,4 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@/server/features/real-elite/paid-gate", () => ({
+  assertRealEliteV1PaidAllowed: () => {},
+}));
+
 import { MAX_CONFIGS_PER_PROJECT } from "@/shared/rank-tracking";
 import { RankTrackingService } from "./RankTrackingService";
 

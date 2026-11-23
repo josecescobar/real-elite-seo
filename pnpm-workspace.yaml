@@ -1,3 +1,13 @@
+# pnpm 10 skips dependency build scripts unless they are listed here.
+# esbuild and workerd must run or Vite and the local worker cannot start.
+onlyBuiltDependencies:
+  - esbuild
+  - workerd
+  - "@mongodb-js/zstd"
+  - core-js
+  - core-js-pure
+  - msgpackr-extract
+
 minimumReleaseAge: 11520
 minimumReleaseAgeExclude:
   - "@every-app/*"

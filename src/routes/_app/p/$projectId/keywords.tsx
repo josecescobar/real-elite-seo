@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { PlannedPaid } from "@/client/features/real-elite/DataWidget";
 import { KeywordResearchPage } from "@/client/features/keywords/page/KeywordResearchPage";
 import {
   isResultLimit,
@@ -24,7 +25,14 @@ export const Route = createFileRoute("/_app/p/$projectId/keywords")({
       replace: true,
     });
   },
-  component: KeywordResearchPageRoute,
+  component: function DisabledKeywordResearch() {
+    return (
+      <PlannedPaid
+        title="Keyword Research"
+        detail="DataForSEO keyword research. Disabled in the local Real Elite prototype."
+      />
+    );
+  },
 });
 
 function KeywordResearchPageRoute() {

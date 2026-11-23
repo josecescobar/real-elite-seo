@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { PlannedPaid } from "@/client/features/real-elite/DataWidget";
 import { BacklinksPage } from "@/client/features/backlinks/BacklinksPage";
 import {
   DEFAULT_BACKLINKS_PAGE_SIZE,
@@ -8,7 +9,14 @@ import { defaultScopeForInput } from "@/shared/researchScope";
 
 export const Route = createFileRoute("/_app/p/$projectId/backlinks")({
   validateSearch: backlinksSearchSchema,
-  component: BacklinksRoute,
+  component: function DisabledBacklinks() {
+    return (
+      <PlannedPaid
+        title="Backlinks"
+        detail="DataForSEO backlink index. Disabled in the local Real Elite prototype."
+      />
+    );
+  },
 });
 
 function BacklinksRoute() {
